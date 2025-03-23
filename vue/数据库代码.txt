@@ -1,0 +1,161 @@
+-- 如果数据库不存在则创建数据库
+IF DB_ID('EducationSystem') IS NULL
+BEGIN
+    CREATE DATABASE EducationSystem;
+END;
+GO
+
+USE EducationSystem;
+GO
+
+-- 1. 课程相关表
+
+-- 1.1 课程基本信息表
+CREATE TABLE Course (
+    course_id VARCHAR(50) PRIMARY KEY, -- 课程的唯一标识
+    course_name VARCHAR(100) NOT NULL,   -- 课程名称
+    description TEXT,                    -- 课程简介或描述
+    created_at DATETIME DEFAULT GETDATE(),  -- 创建时间
+    updated_at DATETIME DEFAULT GETDATE()     -- 更新时间（可通过触发器自动更新）
+);
+GO
+
+-- 1.2 课程文件上传表
+CREATE TABLE CourseFile (
+    file_id INT IDENTITY(1,1) PRIMARY KEY,  -- 文件记录ID，自增
+    course_id VARCHAR(50) NOT NULL,           -- 所属课程ID
+    file_path VARCHAR(255) NOT NULL,          -- 存储文件路径或URL
+    process_id VARCHAR(50) NULL,              -- 知识点抽取处理流程ID
+    status VARCHAR(20) NOT NULL,              -- 文件上传及处理状态，如 'success', 'processing', 'failed'
+    uploaded_at DATETIME DEFAULT GETDATE(),   -- 文件上传时间
+    CONSTRAINT FK_CourseFile_Course FOREIGN KEY (course_id)
+        REFERENCES Course(course_id) ON DELETE CASCADE
+);
+GO
+
+-- 1.3 知识图谱数据表
+CREATE TABLE KnowledgeGraph (
+    kg_id INT IDENTITY(1,1) PRIMARY KEY,      -- 知识图谱记录ID，自增
+    course_id VARCHAR(50) NOT NULL,             -- 关联课程ID
+    title VARCHAR(100) NOT NULL,                -- 知识点标题
+    content TEXT NOT NULL,                      -- 知识点内容描述
+    created_at DATETIME DEFAULT GETDATE(),      -- 记录创建时间
+    CONSTRAINT FK_KnowledgeGraph_Course FOREIGN KEY (course_id)
+        REFERENCES Course(course_id) ON DELETE CASCADE
+);
+GO
+
+-- 2. 数字人对话相关表
+
+-- 数字人对话会话表
+CREATE TABLE DigitalPersonSession (
+    session_id VARCHAR(50) PRIMARY KEY,         -- 会话ID，若存在历史对话则可传入对应ID
+    window_url VARCHAR(255) NOT NULL,             -- 数字人对话窗口链接或资源地址
+    created_at DATETIME DEFAULT GETDATE()         -- 会话创建时间
+);
+GO
+
+-- 3. 学生对话记录与评分相关表
+
+-- 3.1 学生基本信息表
+CREATE TABLE Student (
+    student_id VARCHAR(50) PRIMARY KEY,         -- 学生唯一标识
+    name VARCHAR(100) NOT NULL,                   -- 学生姓名
+    created_at DATETIME DEFAULT GETDATE()         -- 创建时间
+);
+GO
+
+-- 3.2 对话记录总表
+CREATE TABLE ConversationRecord (
+    record_id VARCHAR(50) PRIMARY KEY,            -- 对话记录ID
+    student_id VARCHAR(50) NOT NULL,              -- 关联学生ID
+    course_id VARCHAR(50) NOT NULL,               -- 对话涉及的课程ID
+    conversation_time DATETIME NOT NULL,          -- 对话发生时间
+    keyword VARCHAR(100) NULL,                    -- 对话记录关键词
+    average_score DECIMAL(5,2) NULL,              -- 平均得分
+    grade VARCHAR(5) NULL,                        -- 等级评分，如 A、B、C 等
+    analysis_report TEXT NULL,                    -- 分析报告内容
+    created_at DATETIME DEFAULT GETDATE(),        -- 记录创建时间
+    CONSTRAINT FK_ConversationRecord_Student FOREIGN KEY (student_id)
+        REFERENCES Student(student_id) ON DELETE CASCADE,
+    CONSTRAINT FK_ConversationRecord_Course FOREIGN KEY (course_id)
+        REFERENCES Course(course_id) ON DELETE CASCADE
+);
+GO
+
+-- 3.3 对话详情表
+CREATE TABLE ConversationDetail (
+    detail_id INT IDENTITY(1,1) PRIMARY KEY,      -- 详情记录ID，自增
+    record_id VARCHAR(50) NOT NULL,               -- 关联对话记录ID
+    conversation_no INT NOT NULL,                 -- 对话中该问题的顺序号
+    question TEXT NOT NULL,                       -- 问题描述
+    student_answer TEXT NULL,                     -- 学生的回答
+    reference_answer TEXT NULL,                   -- 参考答案
+    score DECIMAL(5,2) NULL,                      -- 本条对话得分
+    created_at DATETIME DEFAULT GETDATE(),        -- 记录创建时间
+    CONSTRAINT FK_ConversationDetail_Record FOREIGN KEY (record_id)
+        REFERENCES ConversationRecord(record_id) ON DELETE CASCADE
+);
+GO
+
+-- 可选：创建索引以优化查询
+CREATE INDEX idx_student_conversation ON ConversationRecord (student_id, conversation_time);
+CREATE INDEX idx_conversation_keyword ON ConversationRecord (keyword);
+CREATE INDEX idx_file_path ON CourseFile (file_path);
+GO
+
+---------------------------------------------
+-- 插入示例数据
+---------------------------------------------
+
+-- 插入课程数据
+INSERT INTO Course (course_id, course_name, description)
+VALUES 
+('CS101', '数据结构', '本课程主要介绍数据结构的基本概念及其应用。'),
+('CS102', '算法分析', '本课程讲解算法的设计与分析。');
+GO
+
+-- 插入课程文件上传数据
+INSERT INTO CourseFile (course_id, file_path, process_id, status)
+VALUES
+('CS101', '/uploads/cs101_file1.pdf', 'proc001', 'success'),
+('CS101', '/uploads/cs101_file2.doc', 'proc002', 'processing'),
+('CS102', '/uploads/cs102_file1.pdf', 'proc003', 'failed');
+GO
+
+-- 插入知识图谱数据
+INSERT INTO KnowledgeGraph (course_id, title, content)
+VALUES
+('CS101', '二叉树的基本概念', '二叉树是一种树形结构，每个节点最多有两个子节点。'),
+('CS101', '二叉树的遍历方式', '常见的遍历方式有前序、中序和后序遍历。'),
+('CS102', '算法时间复杂度', '描述算法执行所需时间与输入规模的关系。');
+GO
+
+-- 插入数字人对话会话数据
+INSERT INTO DigitalPersonSession (session_id, window_url)
+VALUES
+('sess001', 'https://example.com/digital-person?sess=sess001'),
+('sess002', 'https://example.com/digital-person?sess=sess002');
+GO
+
+-- 插入学生数据
+INSERT INTO Student (student_id, name)
+VALUES
+('S1001', '张三'),
+('S1002', '李四');
+GO
+
+-- 插入对话记录总表数据
+INSERT INTO ConversationRecord (record_id, student_id, course_id, conversation_time, keyword, average_score, grade, analysis_report)
+VALUES
+('rec001', 'S1001', 'CS101', '2025-02-28 14:00:00', '二叉树基本概念', 85.00, 'B', '学生在对话中表现良好。'),
+('rec002', 'S1002', 'CS102', '2025-03-01 10:30:00', '算法分析', 90.00, 'A', '学生对算法有深刻理解。');
+GO
+
+-- 插入对话详情数据
+INSERT INTO ConversationDetail (record_id, conversation_no, question, student_answer, reference_answer, score)
+VALUES
+('rec001', 1, '二叉树的定义是什么？', '二叉树是每个节点最多有两个子节点的树结构。', '详细解释二叉树的定义。', 80.00),
+('rec001', 2, '二叉树的遍历方式有哪些？', '前序、中序、后序。', '标准的三种遍历方式。', 90.00),
+('rec002', 1, '什么是算法的时间复杂度？', '时间复杂度是描述算法效率的指标。', '算法时间复杂度的详细定义。', 92.00);
+GO
