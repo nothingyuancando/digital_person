@@ -7,3 +7,16 @@
 配置路由
 
 错误校验
+
+services/digita_person/
+├── __init__.py
+├── chat_service.py      # 核心对话处理
+├── session_service.py   # 会话管理
+└── speech_service.py    # 语音处理
+
+utils/
+├── __init__.py
+├── celery_tasks.py     # 异步处理
+├── response.py         # 统一响应
+└── speech.py           # 语音工具
+
