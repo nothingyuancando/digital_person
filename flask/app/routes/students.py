@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services.db_manager_plus import DatabaseManager
+from puweb.new.app.services.dbmanage.db_manager_plus import DatabaseManager
 
 student_bp = Blueprint('students', __name__, url_prefix='/api/students')
 
@@ -28,7 +28,7 @@ def get_student(student_id):
     try:
         student = DatabaseManager.get_student(student_id)
         if not student:
-            return jsonify({'code': 404, 'msg': 'Ñ§Éú²»´æÔÚ'}), 404
+            return jsonify({'code': 404, 'msg': 'Ñ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'}), 404
 
         return jsonify({
             'code': 200,
@@ -47,10 +47,10 @@ def update_student(student_id):
     try:
         student = DatabaseManager.get_student(student_id)
         if not student:
-            return jsonify({'code': 404, 'msg': 'Ñ§Éú²»´æÔÚ'}), 404
+            return jsonify({'code': 404, 'msg': 'Ñ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'}), 404
 
         student.update(**data)
-        return jsonify({'code': 200, 'msg': '¸üÐÂ³É¹¦'})
+        return jsonify({'code': 200, 'msg': 'ï¿½ï¿½ï¿½Â³É¹ï¿½'})
     except Exception as e:
         return jsonify({'code': 400, 'msg': str(e)}), 400
 
@@ -60,10 +60,10 @@ def delete_student(student_id):
     try:
         student = DatabaseManager.get_student(student_id)
         if not student:
-            return jsonify({'code': 404, 'msg': 'Ñ§Éú²»´æÔÚ'}), 404
+            return jsonify({'code': 404, 'msg': 'Ñ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'}), 404
 
         student.delete()
-        return jsonify({'code': 200, 'msg': 'É¾³ý³É¹¦'})
+        return jsonify({'code': 200, 'msg': 'É¾ï¿½ï¿½ï¿½É¹ï¿½'})
     except Exception as e:
         return jsonify({'code': 500, 'msg': str(e)}), 500
 

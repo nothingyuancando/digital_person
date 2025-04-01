@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from app.services.db_manager import DatabaseManager
+from puweb.new.app.services.dbmanage.db_manager import DatabaseManager
 from datetime import datetime
 from flask_migrate import Migrate
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services.db_manager_plus import DatabaseManager
+from puweb.new.app.services.dbmanage.db_manager_plus import DatabaseManager
 
 conv_bp = Blueprint('conversations', __name__, url_prefix='/api/conversations')
 
@@ -41,7 +41,7 @@ def get_full_conversation(record_id):
     try:
         record = DatabaseManager.get_full_conversation(record_id)
         if not record:
-            return jsonify({'code': 404, 'msg': '¼ÇÂ¼²»´æÔÚ'}), 404
+            return jsonify({'code': 404, 'msg': 'ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'}), 404
 
         return jsonify({
             'code': 200,
@@ -56,4 +56,4 @@ def get_full_conversation(record_id):
     except Exception as e:
         return jsonify({'code': 500, 'msg': str(e)}), 500
 
-# ÆäËû²Ù×÷ÊµÏÖ...
+# ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½...

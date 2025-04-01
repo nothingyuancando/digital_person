@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services.db_manager_plus import DatabaseManager
+from puweb.new.app.services.dbmanage.db_manager_plus import DatabaseManager
 
 
 course_bp = Blueprint('courses', __name__, url_prefix='/api/courses')
@@ -30,7 +30,7 @@ def get_course(course_id):
     try:
         course = DatabaseManager.get_course(course_id)
         if not course:
-            return jsonify({'code': 404, 'msg': '¿Î³Ì²»´æÔÚ'}), 404
+            return jsonify({'code': 404, 'msg': 'ï¿½Î³Ì²ï¿½ï¿½ï¿½ï¿½ï¿½'}), 404
 
         return jsonify({
             'code': 200,
@@ -43,4 +43,4 @@ def get_course(course_id):
     except Exception as e:
         return jsonify({'code': 500, 'msg': str(e)}), 500
 
-# ÆäËû²Ù×÷²ÎÕÕÑ§ÉúÂ·ÓÉÊµÏÖ...
+# ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ§ï¿½ï¿½Â·ï¿½ï¿½Êµï¿½ï¿½...
